@@ -40,6 +40,16 @@ public class User implements UserDetails { // UserDetails, Security ait bir sın
   private String password;
 
   private boolean accountNonExpired;
+  public User(boolean accountNonExpired, boolean isEnabled, boolean accountNonLocked, boolean credentialNonExpired,
+      boolean isCredentialsNonExpired) {
+    this.accountNonExpired = accountNonExpired;
+    this.isEnabled = isEnabled;
+    this.accountNonLocked = accountNonLocked;
+    this.credentialNonExpired = credentialNonExpired;
+    this.isCredentialsNonExpired = isCredentialsNonExpired;
+  }
+
+
   private boolean isEnabled;
   private boolean accountNonLocked;
   private boolean credentialNonExpired;

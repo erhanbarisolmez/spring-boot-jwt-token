@@ -1,5 +1,7 @@
 package com.security.jwttoken.services;
 
+import static java.util.Objects.*;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,7 +15,13 @@ import com.security.jwttoken.dto.CreateUserRequest;
 import com.security.jwttoken.model.User;
 import com.security.jwttoken.repository.UserRepository;
 
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class UserService implements UserDetailsService {
 
   private final UserRepository userRepository;
@@ -25,37 +33,34 @@ public class UserService implements UserDetailsService {
     this.passwordEncoder = passwordEncoder;
   }
 
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    Optional<User> user = userRepository.findByUsername(username);
+    return user.orElseThrow(EntityNotFoundException::new);
+  }
+
   public Optional<User> getByUserName(String username) {
     return userRepository.findByUsername(username);
   }
 
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    Optional<User> userOptional = userRepository.findByUsername(username);
-    User user = userOptional
-        .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-    return org.springframework.security.core.userdetails.User.builder()
-        .username(user.getUsername())
-        .password(user.getPassword())
-        .authorities(user.getAuthorities())
+  public User createUser(@Valid @RequestBody CreateUserRequest req) {
+      
+    User user = User.builder()
+        .name(requireNonNull(req.name(), "İsim boş olamaz"))
+        .username(requireNonNull(req.username()))
+        .password(passwordEncoder.encode(req.password()))
+        .authorities(req.authorities())
         .build();
+        
+    log.info("*********************************************"+user.toString());
+
+    return userRepository.save(user);
+
   }
 
 
-  public User createUser(CreateUserRequest request) {
-    User newUser = User.builder()
-        .name(request.name())
-        .username(request.username())
-        .password(passwordEncoder.encode(request.password()))
-        .authorities(request.authorities())
-        .accountNonExpired(true)
-        .credentialNonExpired(true)
-        .isEnabled(true)
-        .accountNonLocked(true)
-        .isCredentialsNonExpired(true)
-        .build();
-
-    return userRepository.save(newUser);
+  public void deleteById(Long id){
+    userRepository.deleteById(id);
   }
 
   public List<User> findAll() {
@@ -70,4 +75,3 @@ public class UserService implements UserDetailsService {
   }
 
 }
-

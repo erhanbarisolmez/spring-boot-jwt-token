@@ -26,8 +26,8 @@ import io.swagger.v3.oas.annotations.servers.Server;
   license = @License( name = "asd license" ),
   version = "API/v1"),
   servers = {
-    @Server(description = "testEnv", url = "http://localhosts:8080"),
-    @Server(description = "prodEnv", url = "http://localhosts:8081")
+    @Server(description = "testEnv", url = "http://localhost:8080"),
+    @Server(description = "prodEnv", url = "http://localhost:8081")
   },
   security = @SecurityRequirement(name = "security")
   )

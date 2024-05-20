@@ -1,3 +1,4 @@
+/home/erhanbarisolmez/react/jwt-token/src/main/java/com/security/jwttoken/CorsConfig.java
 /home/erhanbarisolmez/react/jwt-token/src/main/java/com/security/jwttoken/dto/AuthRequest.java
 /home/erhanbarisolmez/react/jwt-token/src/main/java/com/security/jwttoken/security/SecurityConfig.java
 /home/erhanbarisolmez/react/jwt-token/src/main/java/com/security/jwttoken/dto/CreateUserRequest.java

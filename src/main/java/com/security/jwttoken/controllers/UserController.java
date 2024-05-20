@@ -1,10 +1,16 @@
 package com.security.jwttoken.controllers;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,7 +21,6 @@ import com.security.jwttoken.model.User;
 import com.security.jwttoken.services.JWTService;
 import com.security.jwttoken.services.UserService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -33,21 +38,38 @@ public class UserController {
     this.authenticationManager = authenticationManager;
   }
 
-  @PostMapping("/addNewUser")
-  public User addUser(@RequestBody CreateUserRequest request) {
-    return userService.createUser(request);
+  @GetMapping("/welcome")
+  public String welcome(){
+    return "Welcome to the application";
+
+  }
+  @PostMapping("/addNewUser/{request}")
+  public ResponseEntity<User> addUser(CreateUserRequest request) {
+    User newUser = userService.createUser(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
   }
 
-  @PostMapping("/generateToken")
-  public String generateToken(@RequestBody AuthRequest authRequest){
-    Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password()));
+  @PostMapping("/generateToken/")
+  public String generateToken(AuthRequest request){
+    log.info("Received authentication request for user: {}", request.username());
+    Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.password(), request.username()));
     if (authentication.isAuthenticated()){
-      return jwtService.generateToken(authRequest.username());
+      log.info("JWT Token generated successfully for user: {}"+ request.username());
+      return jwtService.generateToken(request.username());
     }
-    log.info("invalid username" + authRequest.username());
-    throw new UsernameNotFoundException("invalid username {}" + authRequest.username());
+    log.error("*************invalid username***********" + request.username());
+    throw new UsernameNotFoundException("invalid username {}" + request.username());
+  }
+  @DeleteMapping("/delete/{id}")
+  public ResponseEntity<String> deleteUser(@PathVariable Long id){
+    userService.deleteById(id);
+    return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully");
   }
 
+  @GetMapping("/all_user")
+  public List<User> getAllUser(){
+    return userService.findAll();
+  }
   @GetMapping("/user")
   public String getUserString() {
     return "Hello User";
