@@ -16,10 +16,10 @@ import com.security.jwttoken.repository.UserRepository;
 import com.security.jwttoken.utils.configPasswordEncoder.PasswordEncoderConfig;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.extern.slf4j.Slf4j;
+// import lombok.extern.slf4j.Slf4j; // loglama
 
 @Service
-@Slf4j
+// @Slf4j
 public class UserService implements UserDetailsService {
 
   private final UserRepository userRepository;

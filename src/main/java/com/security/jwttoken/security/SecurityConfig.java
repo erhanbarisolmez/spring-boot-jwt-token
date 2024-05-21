@@ -41,22 +41,18 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
             .requestMatchers(
-                "/auth/addNewUser/**",
-                "/auth/generateToken/**",
-                "/auth/all_user/**",
-                "/auth/welcome",
-                "/auth/delete/{id}/**")
+                "/auth/create_user/**",
+                "/auth/token/**"
+                )
             .permitAll()
-            .requestMatchers("/auth/user/**").hasRole(Role.ROLE_USER.getValue())
-            .requestMatchers("/auth/admin/**").hasRole(Role.ROLE_SADMIN.getValue())
-            .requestMatchers("/private/user").hasRole(Role.ROLE_USER.getValue())
-            .requestMatchers("/private/admin").hasAnyRole(Role.ROLE_ADMIN.getValue(), Role.ROLE_SADMIN.getValue())
-            .requestMatchers("/private/sadmin").hasRole(Role.ROLE_SADMIN.getValue())
-            .requestMatchers("/public/**").permitAll()
-            .requestMatchers("/private/**")
-            .hasAnyRole(
-                Role.ROLE_ADMIN.getValue(),
-                Role.ROLE_SADMIN.getValue())
+            .requestMatchers("/auth/delete/{id}/**").hasRole(Role.ROLE_SADMIN.getValue())
+            .requestMatchers("/auth/all_user/**")
+                  .hasAnyRole(
+                    Role.ROLE_USER.getValue(),
+                    Role.ROLE_ADMIN.getValue(),
+                    Role.ROLE_MOD.getValue(),
+                    Role.ROLE_SADMIN.getValue()
+                  )
             .anyRequest().authenticated())
         .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider())
