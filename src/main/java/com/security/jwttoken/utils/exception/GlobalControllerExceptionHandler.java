@@ -1,4 +1,4 @@
-package com.security.jwttoken.exception;
+package com.security.jwttoken.utils.exception;
 
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;

@@ -26,7 +26,7 @@ public class JWTService {
 
   public String generateToken(String userName) {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("can", "wia");
+    claims.put("MERHABA", "qweqw");
     log.info("CLAIMS: {}",userName);
     return createToken(claims, userName);
 

@@ -7,11 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,11 +21,12 @@ import com.security.jwttoken.model.User;
 import com.security.jwttoken.services.JWTService;
 import com.security.jwttoken.services.UserService;
 
-import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.Operation;
+
+// import lombok.extern.slf4j.Slf4j; // log
 
 @RestController
 @RequestMapping("/auth")
-@Slf4j
 public class UserController {
 
   private final UserService userService;
@@ -38,46 +39,44 @@ public class UserController {
     this.authenticationManager = authenticationManager;
   }
 
-  @GetMapping("/welcome")
-  public String welcome(){
-    return "Welcome to the application";
 
+  @GetMapping("/all_user")
+  @Operation(summary = "Read User All", tags = "private", description = "Logged in reader")
+  public List<User> getAllUser() {
+    return userService.findAll();
   }
-  @PostMapping("/addNewUser/{request}")
+
+
+  @PostMapping("/create_user/{user}")
+  @Operation(summary = "Create User", tags = "public/authenticate")
   public ResponseEntity<User> addUser(CreateUserRequest request) {
     User newUser = userService.createUser(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
   }
 
-  @PostMapping("/generateToken/")
-  public String generateToken(AuthRequest request){
-    log.info("Received authentication request for user: {}", request.username());
-    Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.password(), request.username()));
-    if (authentication.isAuthenticated()){
-      log.info("JWT Token generated successfully for user: {}"+ request.username());
-      return jwtService.generateToken(request.username());
-    }
-    log.error("*************invalid username***********" + request.username());
-    throw new UsernameNotFoundException("invalid username {}" + request.username());
+  @PostMapping("/token")
+  @Operation(summary = "Login For Access Token", tags="public/authenticate")
+  public ResponseEntity<String> generateToken(@RequestBody AuthRequest request) {
+      try {
+          Authentication authentication = authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+          if (authentication.isAuthenticated()) {
+              String token = jwtService.generateToken(authentication.getName());
+              return ResponseEntity.ok(token);
+          } else {
+              return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+          }
+      } catch (Exception e) {
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while generating token");
+      }
   }
+
+  
   @DeleteMapping("/delete/{id}")
-  public ResponseEntity<String> deleteUser(@PathVariable Long id){
+  @Operation(summary = "Delete User", description = "Only super admin can delete",tags = "private")
+  public ResponseEntity<String> deleteUser(@PathVariable Long id) {
     userService.deleteById(id);
     return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully");
-  }
-
-  @GetMapping("/all_user")
-  public List<User> getAllUser(){
-    return userService.findAll();
-  }
-  @GetMapping("/user")
-  public String getUserString() {
-    return "Hello User";
-  }
-
-  @GetMapping("/admin")
-  public String getAdminString() {
-    return "Hello Admin";
   }
 
 }

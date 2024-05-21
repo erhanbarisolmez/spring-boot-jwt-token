@@ -8,16 +8,14 @@ import java.util.Optional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.security.jwttoken.dto.CreateUserRequest;
 import com.security.jwttoken.model.User;
 import com.security.jwttoken.repository.UserRepository;
+import com.security.jwttoken.utils.configPasswordEncoder.PasswordEncoderConfig;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -26,9 +24,9 @@ public class UserService implements UserDetailsService {
 
   private final UserRepository userRepository;
 
-  private final BCryptPasswordEncoder passwordEncoder;
+  private final PasswordEncoderConfig passwordEncoder;
 
-  public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+  public UserService(UserRepository userRepository, PasswordEncoderConfig passwordEncoder) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
   }
@@ -39,21 +37,20 @@ public class UserService implements UserDetailsService {
     return user.orElseThrow(EntityNotFoundException::new);
   }
 
-  public Optional<User> getByUserName(String username) {
-    return userRepository.findByUsername(username);
-  }
 
-  public User createUser(@Valid @RequestBody CreateUserRequest req) {
-      
+
+  public User createUser(CreateUserRequest req) {
     User user = User.builder()
         .name(requireNonNull(req.name(), "İsim boş olamaz"))
         .username(requireNonNull(req.username()))
-        .password(passwordEncoder.encode(req.password()))
+        .password(passwordEncoder.bCryptPasswordEncoder().encode(req.password()))
         .authorities(req.authorities())
+        .accountNonExpired(true)
+        .accountNonLocked(true)
+        .credentialNonExpired(true)
+        .isCredentialsNonExpired(true)
+        .isEnabled(true)
         .build();
-        
-    log.info("*********************************************"+user.toString());
-
     return userRepository.save(user);
 
   }

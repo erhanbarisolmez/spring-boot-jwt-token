@@ -1,4 +1,4 @@
-package com.security.jwttoken;
+package com.security.jwttoken.utils;
 
 import org.springframework.context.annotation.Configuration;
 

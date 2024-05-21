@@ -1,4 +1,4 @@
-package com.security.jwttoken.config;
+package com.security.jwttoken.utils.configPasswordEncoder;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
