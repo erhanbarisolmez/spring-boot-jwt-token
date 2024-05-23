@@ -23,10 +23,12 @@ import com.security.jwttoken.services.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 
+
 // import lombok.extern.slf4j.Slf4j; // log
 
 @RestController
 @RequestMapping("/auth")
+
 public class UserController {
 
   private final UserService userService;
@@ -41,21 +43,21 @@ public class UserController {
 
 
   @GetMapping("/all_user")
-  @Operation(summary = "Read User All", tags = "private", description = "Logged in reader")
+  @Operation(summary = "Read User All", tags = "auth", description = "Logged in reader")
   public List<User> getAllUser() {
     return userService.findAll();
   }
 
 
   @PostMapping("/create_user/{user}")
-  @Operation(summary = "Create User", tags = "public/authenticate")
+  @Operation(summary = "Create User", tags = "auth")
   public ResponseEntity<User> addUser(CreateUserRequest request) {
     User newUser = userService.createUser(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
   }
 
   @PostMapping("/token")
-  @Operation(summary = "Login For Access Token", tags="public/authenticate")
+  @Operation(summary = "Login For Access Token", tags="auth")
   public ResponseEntity<String> generateToken(@RequestBody AuthRequest request) {
       try {
           Authentication authentication = authenticationManager.authenticate(
@@ -73,7 +75,7 @@ public class UserController {
 
   
   @DeleteMapping("/delete/{id}")
-  @Operation(summary = "Delete User", description = "Only super admin can delete",tags = "private")
+  @Operation(summary = "Delete User", description = "Only super admin can delete",tags = "auth")
   public ResponseEntity<String> deleteUser(@PathVariable Long id) {
     userService.deleteById(id);
     return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully");
