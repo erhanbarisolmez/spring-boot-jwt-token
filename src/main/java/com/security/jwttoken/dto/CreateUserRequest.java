@@ -15,6 +15,3 @@ public record CreateUserRequest(
 
 
 }
-
-
-// localhost:8080/auth/addNewUser/?name=baris&username=baris&password=pass&authorities=ROLE_USER
